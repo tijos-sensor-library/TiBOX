@@ -5,7 +5,7 @@ import static tijos.framework.component.modbus.protocol.ModbusConstants.*;
 import java.io.Closeable;
 
 import tijos.framework.component.modbus.protocol.ModbusPdu;
-import tijos.framework.component.rs485.TiRS485;
+import tijos.framework.component.serialport.TiSerialPort;
 import tijos.framework.util.logging.Logger;
 
 /**
@@ -40,8 +40,8 @@ public class ModbusClient extends ModbusPdu implements Closeable {
 	 */	
 	private ModbusClientTransport transport;
 	
-	public ModbusClient(TiRS485 rs485,  int timeout, int pause) {
-		RtuTransportUART rtu = new RtuTransportUART(rs485, timeout, pause);
+	public ModbusClient(TiSerialPort serialPort,  int timeout, int pause) {
+		RtuTransportUART rtu = new RtuTransportUART(serialPort, timeout, pause);
 		setTransport(rtu);
 	}
 	

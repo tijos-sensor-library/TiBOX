@@ -2,7 +2,7 @@ package tibox;
 
 import java.io.IOException;
 
-import tijos.framework.component.rs485.TiRS485;
+import tijos.framework.component.serialport.*;
 import tijos.framework.devicecenter.TiGPIO;
 import tijos.framework.devicecenter.TiUART;
 import tijos.framework.sensor.bc28.IDeviceEventListener;
@@ -45,9 +45,9 @@ class LedThread extends Thread {
  */
 public class NB100 {
 
-	private static TiRS485 rs232;
+	private static TiSerialPort rs232;
 
-	private static TiRS485 rs485;
+	private static TiSerialPort rs485;
 
 	private static TiBC28 bc28;
 
@@ -61,10 +61,10 @@ public class NB100 {
 	 * @return
 	 * @throws IOException
 	 */
-	public static TiRS485 getRS232(int baudRate, int dataBitNum, int stopBitNum, int parity) throws IOException {
+	public static TiSerialPort getRS232(int baudRate, int dataBitNum, int stopBitNum, int parity) throws IOException {
 		if (rs232 == null) {
 			// 485端口 - UART 1
-			rs232 = new TiRS485(3, -1, -1); // only UART without GPIO
+			rs232 = new TiSerialPort(3, -1, -1); // only UART without GPIO
 			rs232.open(baudRate, dataBitNum, stopBitNum, parity);
 		}
 
@@ -77,11 +77,11 @@ public class NB100 {
 	 * @return
 	 * @throws IOException
 	 */
-	public static TiRS485 getRS485(int baudRate, int dataBitNum, int stopBitNum, int parity) throws IOException {
+	public static TiSerialPort getRS485(int baudRate, int dataBitNum, int stopBitNum, int parity) throws IOException {
 
 		if (rs485 == null) {
 			// 485端口 - UART 1, GPIO PORT 2 PIN 4
-			rs485 = new TiRS485(1, 2, 4);
+			rs485 = new TiSerialPort(1, 2, 4);
 		}
 
 		return rs485;

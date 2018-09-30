@@ -1,4 +1,4 @@
-package tijos.framework.component.rs485;
+package tijos.framework.component.serialport;
 
 import java.io.IOException;
 
@@ -9,24 +9,24 @@ import tijos.framework.util.Formatter;
 import tijos.framework.util.logging.Logger;
 
 /**
- * RS485 based on UART for TiJOS 
+ * Serial Port based on UART for TiJOS, support RS232 and RS485 
  * @author TiJOS
  *
  */
-public class TiRS485 {
+public class TiSerialPort {
 
 	private TiUART uart;
 	private TiGPIO gpio;
 	private int gpioPin;
 
 	/**
-	 * Initialize RS485 with UART and GPIO
+	 * Initialize TiSerialPort with UART and GPIO
 	 * @param uartPort  UART port id
-	 * @param gpioPort  GPIO port id 
+	 * @param gpioPort  GPIO port id, GPIO should be specified for RS485
 	 * @param gpioPin   GPIO pin id 
 	 * @throws IOException
 	 */
-	public TiRS485(int uartPort, int gpioPort, int gpioPin) throws IOException {
+	public TiSerialPort(int uartPort, int gpioPort, int gpioPin) throws IOException {
 
 		// RS485使用UART1 根据外设进行初始化
 		uart = TiUART.open(uartPort);

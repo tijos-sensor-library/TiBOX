@@ -59,8 +59,8 @@ tibox.NB100类提供了TiBOX-N100所支持的硬件资源访问， 包括RS485, 
 
 | 方法                                                         | 说明                                                         |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| TiRS485 getRS485(int baudRate, int dataBitNum, int stopBitNum, int parity) | 获取RS485接口， 参数：波特率，数据位，停止位，校验位         |
-| TiRS485 getRS232(int baudRate, int dataBitNum, int stopBitNum, int parity) | 获取RS232接口，注：返回对象仍是RS485                         |
+| TiSerialPort getRS485(int baudRate, int dataBitNum, int stopBitNum, int parity) | 获取RS485接口， 参数：波特率，数据位，停止位，校验位         |
+| TiSerialPort getRS232(int baudRate, int dataBitNum, int stopBitNum, int parity) | 获取RS232接口， 参数：波特率，数据位，停止位，校验位                         |
 | void networkConnet(String serverIp, int port)                | 连接NB-IOT云平台， 建议使用电信云。serverIp/port: 电信云平台IP 及端口 |
 | void networkCoAPSend(byte[] dataBuffer)                      | 发送数据到云平台, dataBuffer 待发送数据                      |
 | void turnOnLED(int id)                                       | 打开指定LED灯                                                |
@@ -105,11 +105,11 @@ tibox.NB100类提供了TiBOX-N100所支持的硬件资源访问， 包括RS485, 
 
 #### 代码调用过程
 
-1. 打开RS485并获取TiRS485对象
+1. 打开RS485并获取TiSerialPort对象
 
 	```java
    //通讯参数
-   TiRS485 rs485 = NB100.getRS485(9600, 8, 1, TiUART.PARITY_NONE);
+   TiSerialPort rs485 = NB100.getRS485(9600, 8, 1, TiUART.PARITY_NONE);
   ```
 
 2. 创建MODBUS协议对象并挂接RS485
@@ -223,7 +223,7 @@ tibox.NB100类提供了TiBOX-N100所支持的硬件资源访问， 包括RS485, 
 
 | 函数                                                         | 说明                                                         |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| ModbusClient(TiRS485 rs485,  int timeout, int pause)         | 实初化， timout: 通讯超时，pause: 发送命令后等待时间后开始读取数据 |
+| ModbusClient(TiSerialPort rs485,  int timeout, int pause)         | 实初化， timout: 通讯超时，pause: 发送命令后等待时间后开始读取数据 |
 | InitReadCoilsRequest(int serverId, int startAddress, int count) | 初始化Read Coils 请求                                        |
 | InitWriteCoilRequest(int serverId, int coilAddress, boolean value) | 初始化WRITE COIL register 请求- 单寄存器操作                 |
 | InitWriteCoilsRequest(int serverId, int startAddress, boolean[] values) | 初始化WRITE MULTIPLE COILS registers 请求- 多寄存器操作      |
@@ -245,11 +245,11 @@ tibox.NB100类提供了TiBOX-N100所支持的硬件资源访问， 包括RS485, 
 
 ### 第一步 ：RS485 初始化
 
-创建RS485对象， 指定UART ID, 以及用于RS485半双工切换的GIPOPIN , 并设置通讯参数
+创建TiSerialPort对象， 指定UART ID, 以及用于RS485半双工切换的GIPOPIN , 并设置通讯参数
 
 ```java
 		// 485端口 - UART 1, GPIO PORT 2 PIN 4
-		TiRS485 rs485 = new TiRS485(1, 2, 4);
+		TiSerialPort rs485 = new TiSerialPort(1, 2, 4);
 		
 		// 通讯参数 9600，8，1，N
 		rs485.open(9600, 8, 1, TiUART.PARITY_NONE);

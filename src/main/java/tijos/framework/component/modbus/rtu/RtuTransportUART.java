@@ -7,7 +7,7 @@ import static tijos.framework.component.modbus.protocol.ModbusConstants.MAX_PDU_
 import java.io.IOException;
 
 import tijos.framework.component.modbus.protocol.ModbusPdu;
-import tijos.framework.component.rs485.TiRS485;
+import tijos.framework.component.serialport.*;
 import tijos.framework.util.logging.Logger;
 
 /**
@@ -16,7 +16,7 @@ import tijos.framework.util.logging.Logger;
  */
 public class RtuTransportUART  implements ModbusClientTransport {
 
-	TiRS485 rs485;
+	TiSerialPort serialPort;
 	
 	protected final int timeout;
 	protected final int pause;
@@ -26,18 +26,18 @@ public class RtuTransportUART  implements ModbusClientTransport {
 	/**
 	 * Initialize with UART and timeout 
 	 * @param uart
-	 * @param timeout	timeout for receiving data from uart
+	 * @param timeout	timeout for receiving data from UART
 	 * @param pause		pause after sending data
 	 */
-	public RtuTransportUART(TiRS485 rs485, int timeout, int pause) {
-		this.rs485 = rs485;		
+	public RtuTransportUART(TiSerialPort rs485, int timeout, int pause) {
+		this.serialPort = rs485;		
 		
 		this.timeout = timeout;
 		this.pause = pause;
 	}
 
 	public void open(int baudRate, int dataBitNum, int stopBitNum, int parity) throws IOException {
-		this.rs485.open(baudRate, dataBitNum, stopBitNum, parity);
+		this.serialPort.open(baudRate, dataBitNum, stopBitNum, parity);
 	}
 	
 	/**
@@ -46,7 +46,7 @@ public class RtuTransportUART  implements ModbusClientTransport {
 	@Override
 	synchronized public void close() {
 		try{
-		this.rs485.close();
+		this.serialPort.close();
 		}
 		catch(Exception ie) {
 			ie.printStackTrace();
@@ -60,7 +60,7 @@ public class RtuTransportUART  implements ModbusClientTransport {
 	@Override
 	public void sendRequest(ModbusClient modbusClient) throws Exception {
 
-		this.rs485.clearInput();
+		this.serialPort.clearInput();
 		
 		buffer[0] = modbusClient.getServerId();
 		modbusClient.readFromPdu(0, modbusClient.getPduSize(), buffer, 1);
@@ -72,7 +72,7 @@ public class RtuTransportUART  implements ModbusClientTransport {
 
 		Logger.info("Modbus", "Write: " + ModbusPdu.toHex(buffer, 0, size));
 
-		this.rs485.write(buffer, 0, size);		
+		this.serialPort.write(buffer, 0, size);		
 		if (pause > 0)
 		{
 			Logger.info("Modbus","Pause " + pause);
@@ -91,7 +91,7 @@ public class RtuTransportUART  implements ModbusClientTransport {
 		expectedBytes = modbusClient.getExpectedPduSize() + 3; // id(1), PDU(n), crc(2)
 
 		// read id
-		if (!this.rs485.readToBuffer(this.buffer, 0, 1, this.timeout))
+		if (!this.serialPort.readToBuffer(this.buffer, 0, 1, this.timeout))
 			return ModbusClient.RESULT_TIMEOUT;
 		if (buffer[0] != modbusClient.getServerId()) {
 			logData("bad id", 0, 1);
@@ -101,7 +101,7 @@ public class RtuTransportUART  implements ModbusClientTransport {
 		}
 
 		// read function (bit7 means exception)
-		if (!this.rs485.readToBuffer(this.buffer, 1, 1, this.timeout))
+		if (!this.serialPort.readToBuffer(this.buffer, 1, 1, this.timeout))
 			return ModbusClient.RESULT_TIMEOUT;
 		if ((buffer[1] & 0x7f) != modbusClient.getFunction()) {
 			logData("bad function", 0, 2);
@@ -113,7 +113,7 @@ public class RtuTransportUART  implements ModbusClientTransport {
 		if ((buffer[1] & 0x80) != 0) {
 			// EXCEPTION
 			expectedBytes = 5; // id(1), function(1), exception code(1), crc(2)
-			if (!this.rs485.readToBuffer(this.buffer, 2, 3, this.timeout)) // exception code + CRC
+			if (!this.serialPort.readToBuffer(this.buffer, 2, 3, this.timeout)) // exception code + CRC
 				return ModbusClient.RESULT_TIMEOUT;
 			if (crcValid(3)) {
 				logData("exception", 0, expectedBytes);
@@ -126,7 +126,7 @@ public class RtuTransportUART  implements ModbusClientTransport {
 			}
 		} else {
 			// NORMAL RESPONSE
-			if (!this.rs485.readToBuffer(this.buffer, 2, modbusClient.getExpectedPduSize() + 1, this.timeout)) // data + CRC (without function)
+			if (!this.serialPort.readToBuffer(this.buffer, 2, modbusClient.getExpectedPduSize() + 1, this.timeout)) // data + CRC (without function)
 				return ModbusClient.RESULT_TIMEOUT;
 			// CRC check of (serverId + PDU)
 			if (crcValid(1 + modbusClient.getExpectedPduSize())) {

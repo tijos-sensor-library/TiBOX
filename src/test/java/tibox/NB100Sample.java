@@ -3,7 +3,7 @@ package tibox;
 import java.io.IOException;
 
 import tijos.framework.component.modbus.rtu.ModbusClient;
-import tijos.framework.component.rs485.TiRS485;
+import tijos.framework.component.serialport.TiSerialPort;
 import tijos.framework.devicecenter.TiUART;
 import tijos.framework.sensor.bc28.IDeviceEventListener;
 import tijos.framework.util.Delay;
@@ -40,7 +40,7 @@ public class NB100Sample {
 		try {
 			
 			//通讯参数
-			TiRS485 rs485 = NB100.getRS485(9600, 8, 1, TiUART.PARITY_NONE);
+			TiSerialPort rs485 = NB100.getRS485(9600, 8, 1, TiUART.PARITY_NONE);
 
 			//MODBUS 客户端  
 			//通讯超时2000 ms 读取数据前等待5ms
