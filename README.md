@@ -213,7 +213,7 @@ tibox.NB100类提供了TiBOX-N100所支持的硬件资源访问， 包括RS485, 
 | ---------- | ------------------------------------- |
 | 驱动名称   | MODBUS RTU Client                     |
 | 适用       | 该驱动适用于符合MODBUS RTU 协议的设备 |
-| 通讯方式   | I2C                                   |
+| 通讯方式   | RS485/RS232/UART                                   |
 | Java Class | ModbusClient.java                     |
 | 图片       |                                       |
 
