@@ -72,7 +72,9 @@ public class TiBC28 extends Thread {
 					
 				} else if (resp.contains("+NSONMI")) // UDP
 				{
+					synchronized (this.atResp) {
 					this.udpReceive(resp);
+					}
 					
 				} else if(resp.contains("+NSMI"))// response for the request
 				{
@@ -318,11 +320,13 @@ public class TiBC28 extends Thread {
 	 * 
 	 * @param listenPort
 	 *            本地监听端口
-	 * @return socket id
+	 * @return socket id , < 0 - failed
 	 * @throws IOException
 	 */
 	public int createUDPSocket(int listenPort) throws IOException {
 		String resp = sendCommand("AT+NSOCR=DGRAM,17," + listenPort + ",1");
+		if(resp.length() == 0)
+			return -1;
 
 		return Integer.parseInt(resp);
 	}
@@ -378,8 +382,29 @@ public class TiBC28 extends Thread {
 		int socketId = Integer.parseInt(resp.substring(begin + 1, end));
 		int length = Integer.parseInt(resp.substring(end + 1));
 
-		resp = sendCommand("AT+NSORF=" + socketId + "," + length);
+		String cmd = "AT+NSORF=" + socketId + "," + length + "\r\n" ;
+		this.output.write(cmd.getBytes());
 
+		
+		resp = readLine();
+		while(resp.length() == 0) {
+			Delay.msDelay(5);
+			resp = readLine();
+			continue;
+		}
+		
+		String result = readLine();
+		while(result.length() == 0) {
+			Delay.msDelay(5);
+			result = readLine();
+			continue;
+		}
+		
+		if( !"OK".equals(result))
+			throw new IOException("Data error");
+
+		System.out.println("NSORF Receive " + resp);
+		
 		begin = resp.indexOf(',');
 		socketId = Integer.parseInt(resp.substring(0, begin));
 
@@ -529,11 +554,12 @@ public class TiBC28 extends Thread {
 	
 		synchronized (this.atResp) {
 			try {
+				System.out.println("send: " + cmd);
 				this.atResp.reset();
 				output.write((cmd + "\r\n").getBytes());
 
 				this.atResp.wait(5000);
-				// this.atResp.wait();
+				//this.atResp.wait();
 
 				return atResp.getResponse();
 				

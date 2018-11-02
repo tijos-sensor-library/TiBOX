@@ -88,16 +88,16 @@ public class NB100 {
 	}
 
 	/**
-	 * Initialize NBIOT Module and Network 
+	 * Initialize NBIOT Module and Network
 	 * 
 	 * @return
 	 * @throws IOException
 	 */
 	private static void initNBIOT() throws IOException {
-		
-		if(bc28 != null)
-			return ;
-		
+
+		if (bc28 != null)
+			return;
+
 		// BC28-NBIOT使用UART2
 		TiUART uart = TiUART.open(2);
 		uart.setWorkParameters(8, 1, TiUART.PARITY_NONE, 9600);
@@ -148,20 +148,22 @@ public class NB100 {
 	}
 
 	/**
-	 * Connect to the IoT Cloud 
-	 * @param serverIp  ip address of the cloud
-	 * @param port 
+	 * Connect to the IoT Cloud
+	 * 
+	 * @param serverIp
+	 *            ip address of the cloud
+	 * @param port
 	 * @throws IOException
 	 */
 	public static void networkConnet(String serverIp, int port) throws IOException {
-		
+
 		initNBIOT();
 
 		// 设置自动连接
 		bc28.configAutoConnect(true);
 
 		// 设置服务器IP
-		bc28.setCDPServer(serverIp, 5683);
+		bc28.setCDPServer(serverIp, port);
 
 		// 启用发送消息成功通知
 		bc28.enableMsgNotification(true);
@@ -172,6 +174,7 @@ public class NB100 {
 
 	/**
 	 * Send data to the Cloud via COAP protocol
+	 * 
 	 * @param dataBuffer
 	 * @throws IOException
 	 */
@@ -179,6 +182,70 @@ public class NB100 {
 		initNBIOT();
 
 		bc28.coapSend(dataBuffer);
+	}
+
+	/**
+	 * Create UDP socket with the port
+	 * 
+	 * @param listenPort
+	 *            local listen port, don't use 5683
+	 * @return
+	 * @throws IOException
+	 */
+	public static int networkUDPCreate(int listenPort) throws IOException {
+		initNBIOT();
+
+		int socketId = bc28.createUDPSocket(listenPort);
+		if (socketId < 0) {
+			try {
+				// release socket
+				networkUDPClose(0);
+				networkUDPClose(1);
+				networkUDPClose(2);
+				networkUDPClose(3);
+				
+			} catch (Exception ex) {
+
+			}
+			socketId = bc28.createUDPSocket(listenPort);
+		}
+
+		return socketId;
+	}
+
+	/**
+	 * Send UDP data to the remote server
+	 * 
+	 * @param socketId
+	 *            id from networkUDPCreate
+	 * @param remoteAddr
+	 *            remote server IP address
+	 * @param remotePort
+	 *            remote server port
+	 * @param data
+	 *            data to be sent
+	 * @return sent data length
+	 * @throws IOException
+	 */
+	public static int networkUDPSend(int socketId, String remoteAddr, int remotePort, byte[] data) throws IOException {
+
+		return bc28.udpSend(socketId, remoteAddr, remotePort, data);
+	}
+
+	/**
+	 * Close socket
+	 * 
+	 * @param socketId
+	 * @throws IOException
+	 */
+	public static void networkUDPClose(int socketId) {
+		if (bc28 != null) {
+			try {
+				bc28.closeUDPSocket(socketId);
+			} catch (Exception ex) {
+
+			}
+		}
 	}
 
 	/**
@@ -194,12 +261,14 @@ public class NB100 {
 
 	/**
 	 * Turn ON working LED
-	 * @param id :  0 - WORK LED 1 - NET LED
+	 * 
+	 * @param id
+	 *            : 0 - WORK LED 1 - NET LED
 	 * @return
 	 * @throws IOException
 	 */
 	public static void turnOnLED(int id) throws IOException {
-		if(id == 0)
+		if (id == 0)
 			getLED().writePin(8, 0);
 		else
 			getLED().writePin(9, 0);
@@ -207,11 +276,13 @@ public class NB100 {
 
 	/**
 	 * Turn OFF working LED
-	 * @param id :  0 - WORK LED 1 - NET LED
+	 * 
+	 * @param id
+	 *            : 0 - WORK LED 1 - NET LED
 	 * @throws IOException
 	 */
-	public static void turnOffLED(int id) throws IOException {	
-		if(id == 0)
+	public static void turnOffLED(int id) throws IOException {
+		if (id == 0)
 			getLED().writePin(8, 1);
 		else
 			getLED().writePin(9, 1);
@@ -219,25 +290,29 @@ public class NB100 {
 
 	/**
 	 * Start flashing working LED
-	 * @param id :  0 - WORK LED 1 - NET LED 
+	 * 
+	 * @param id
+	 *            : 0 - WORK LED 1 - NET LED
 	 * @throws IOException
 	 */
 	public static void startFlashLED(int id) throws IOException {
 		initLED();
 		startFlash = true;
 		int pin = 0;
-		if(id == 0)
+		if (id == 0)
 			pin = 8;
-		else 
+		else
 			pin = 9;
-		
+
 		new LedThread(pin).start();
 
 	}
 
 	/**
 	 * Stop flashing working LED, WORK AND LED will be stopped together
-	 * @param id :  0 - WORK LED 1 - NET LED 
+	 * 
+	 * @param id
+	 *            : 0 - WORK LED 1 - NET LED
 	 * @throws IOException
 	 */
 	public static void stopFlashLED(int id) throws IOException {
@@ -246,12 +321,15 @@ public class NB100 {
 
 	/**
 	 * Event listener for data received from NB-IOT
+	 * 
 	 * @param eventListener
+	 * @throws IOException
 	 */
-	public static void setNBEventListener(IDeviceEventListener eventListener) {
+	public static void setNBEventListener(IDeviceEventListener eventListener) throws IOException {
+		initNBIOT();
 		bc28.setEventListener(eventListener);
 	}
-	
+
 	/**
 	 * Initialize GPIOs for LED WORKING LED: GPIO PORT 1 PIN 8 NETWORK LED: GPIO
 	 * PORT 1 PIN 9
