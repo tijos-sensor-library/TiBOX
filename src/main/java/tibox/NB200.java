@@ -2,10 +2,14 @@ package tibox;
 
 import java.io.IOException;
 
+import tijos.framework.appcenter.TiOTA;
+import tijos.framework.component.nbiot.coap.Network;
 import tijos.framework.component.serialport.TiSerialPort;
 import tijos.framework.devicecenter.TiGPIO;
-import tijos.framework.platform.lpwan.TiNBIoT;
 import tijos.framework.util.Delay;
+import tijos.framework.util.json.JSONException;
+import tijos.framework.util.json.JSONObject;
+import tijos.framework.util.json.JSONTokener;
 
 //Thread for LED flashing
 class NB200LedThread extends Thread {
@@ -33,7 +37,6 @@ class NB200LedThread extends Thread {
 
 }
 
-
 public class NB200 {
 
 	private static TiSerialPort rs232;
@@ -57,7 +60,7 @@ public class NB200 {
 			rs232.open(baudRate, dataBitNum, stopBitNum, parity);
 		}
 
-		return rs485;
+		return rs232;
 	}
 
 	/**
@@ -75,26 +78,110 @@ public class NB200 {
 
 		return rs485;
 	}
-	
+
 	/**
-	 * Initialize NBIOT Module and Network
+	 * Startup NBIoT Network
+	 * 
+	 * @return
+	 */
+	public static void networkStartup() throws IOException {
+		Network.getInstance().startUp();
+	}
+
+	/**
+	 * Get NBIoT IMEI
 	 * 
 	 * @return
 	 * @throws IOException
 	 */
-	private static void initNBIOT() throws IOException {
-
-		TiNBIoT.getInstance().startup(60);
-		
-		System.out.println(" IMSI : " + TiNBIoT.getInstance().getIMSI());
-		System.out.println(" IMEI : " + TiNBIoT.getInstance().getIMEI());
-		System.out.println(" RSSI : " + TiNBIoT.getInstance().getRSSI());
-
-		System.out.println("IP Address " + TiNBIoT.getInstance().getPDPIP());
-		System.out.println("Date time " + TiNBIoT.getInstance().getUTCTime());
-
+	public static String networkGetIMEI() throws IOException {
+		return Network.getInstance().getIMEI();
+	}
+	
+	/**
+	 * Get NBIoT RSSI signal strength
+	 * @return
+	 * @throws IOException
+	 */
+	public static int networkGetRSSI() throws IOException {
+		return Network.getInstance().getRSSI();
 	}
 
+	/**
+	 * Connect to the COAP Server
+	 * 
+	 * @param url
+	 *            COAP server url
+	 * @throws IOException
+	 */
+	public static void networkCoAPConnect(String url) throws IOException {
+		Network.getInstance().connect(url);
+	}
+
+	/**
+	 * POST text to COAP Server, JSON is recommended
+	 * 
+	 * @param uri
+	 *            uri containing data
+	 * @param jsonText
+	 *            JSON text to be sent
+	 * @throws IOException
+	 */
+	public static void networkCoAPPOST(String uri, String jsonText) throws IOException {
+		Network.getInstance().send(uri, jsonText);
+	}
+
+	/**
+	 * GET text from COAP Server, JSON is recommended
+	 * 
+	 * @param topic
+	 *            uri to get
+	 * @return text
+	 * @throws IOException
+	 */
+	public static String networkCoAPGET(String uri) throws IOException {
+		return Network.getInstance().receive(uri);
+	}
+
+	/**
+	 * GET OTA request parameters from server
+	 * 
+	 * @param OTAUri
+	 * @return
+	 * @throws IOException
+	 */
+	public static String networkGetOTARequest(String OTAUri) throws IOException {
+		String otaRequest = networkCoAPGET(OTAUri);
+		if (otaRequest.trim().length() == 0)
+			return "";
+
+		return otaRequest;
+	}
+
+	/**
+	 * start OTA process
+	 * 
+	 * @param otaRequest
+	 *            otaRequest from cloud
+	 * @return
+	 */
+	public static void networkOTA(String productKey, String otaAppName, String otaRequest) throws IOException {
+		try {
+			JSONTokener jsonTokener = new JSONTokener(otaRequest);
+			JSONObject otaProps = (JSONObject) jsonTokener.nextValue();
+			String server = otaProps.getString("server");
+			String appname = otaProps.getString("appname");
+			int appsize = otaProps.getInt("appsize");
+			int taskid = otaProps.getInt("taskid");
+
+			TiOTA ota = TiOTA.getInstance(otaAppName);
+			ota.execute(server, productKey, networkGetIMEI(), appname, appsize, taskid);
+
+		} catch (JSONException ex) {
+			throw new IOException(ex.getMessage());
+		}
+
+	}
 
 	/**
 	 * Get GPIO of the LEDs
@@ -116,7 +203,7 @@ public class NB200 {
 	 * @throws IOException
 	 */
 	public static void turnOnLED() throws IOException {
-			getLED().writePin(12, 0);
+		getLED().writePin(12, 0);
 	}
 
 	/**
@@ -134,13 +221,13 @@ public class NB200 {
 	 * Start flashing working LED
 	 * 
 	 * @param id
-	 *            : 0 - WORK LED 
+	 *            : 0 - WORK LED
 	 * @throws IOException
 	 */
 	public static void startFlashLED() throws IOException {
-		
+
 		initLED();
-		
+
 		startFlash = true;
 		int pin = 12;
 		new NB200LedThread(pin).start();

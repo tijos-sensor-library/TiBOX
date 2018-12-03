@@ -12,6 +12,11 @@ public class NB200Sample {
 		
 		try {
 			
+			//启动NB-IoT网络
+			NB200.networkStartup();
+			
+			NB200.networkCoAPConnect("coap://coap.tijcloud.com:5683");
+			
 			//通讯参数
 			TiSerialPort rs485 = NB200.getRS485(9600, 8, 1, TiUART.PARITY_NONE);
 
@@ -19,7 +24,7 @@ public class NB200Sample {
 			//通讯超时2000 ms 读取数据前等待5ms
 			ModbusClient modbusRtu = new ModbusClient(rs485, 2000, 5);
 			
-			//打开WORK LED
+			//LED闪烁
 			NB200.startFlashLED();
 								
 			//防止程序退出
@@ -92,7 +97,25 @@ public class NB200Sample {
 	 * @throws IOException
 	 */
 	public static void reportSensor(int temperature, int humidity) throws IOException {
+		
+		//产品标识
+		String product = "TiBox-NB100";
+		
+		String dataBuffer = "{temperature:" + temperature / 10 + ",humidity:" + humidity / 10 +",rssi:"+ NB200.networkGetRSSI()+ "}";
+		
+		String dataUri = "/topic/" + product + "/" + NB200.networkGetIMEI() + "/data";
+		String cmdUri = "/topic/" + product + "/" + NB200.networkGetIMEI() + "/cmd";
+		//发送数据到指定的资源路径
+		NB200.networkCoAPPOST(dataUri,  dataBuffer);
+		
+		//获取云端命令
+		String cmd = NB200.networkCoAPGET(cmdUri);
+		if(cmd.length() > 0)
+		{
+			//有命令来自云端, 需进行处理
+		}
+		
 
-	
 	}
+	
 }

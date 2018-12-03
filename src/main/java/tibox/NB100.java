@@ -68,7 +68,7 @@ public class NB100 {
 			rs232.open(baudRate, dataBitNum, stopBitNum, parity);
 		}
 
-		return rs485;
+		return rs232;
 	}
 
 	/**
