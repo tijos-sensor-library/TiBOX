@@ -152,9 +152,6 @@ public class NB200 {
 	 */
 	public static String networkGetOTARequest(String OTAUri) throws IOException {
 		String otaRequest = networkCoAPGET(OTAUri);
-		if (otaRequest.trim().length() == 0)
-			return "";
-
 		return otaRequest;
 	}
 
