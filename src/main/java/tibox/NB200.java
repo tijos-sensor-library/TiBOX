@@ -86,6 +86,10 @@ public class NB200 {
 	 */
 	public static void networkStartup() throws IOException {
 		Network.getInstance().startUp();
+		if(Network.getInstance().isPSM())
+		{
+			Network.getInstance().disablePSM();
+		}
 	}
 
 	/**
@@ -234,11 +238,9 @@ public class NB200 {
 	/**
 	 * Stop flashing working LED, WORK AND LED will be stopped together
 	 * 
-	 * @param id
-	 *            : 0 - WORK LED 1 - NET LED
 	 * @throws IOException
 	 */
-	public static void stopFlashLED(int id) throws IOException {
+	public static void stopFlashLED() throws IOException {
 		startFlash = false;
 	}
 
