@@ -22,14 +22,13 @@ public class NB200Sample {
 
 			//MODBUS 客户端  
 			//通讯超时2000 ms 读取数据前等待5ms
-			ModbusClient modbusRtu = new ModbusClient(rs485, 2000, 5);
+			ModbusClient modbusRtu = new ModbusClient(rs485);
 			
 			//LED闪烁
 			NB200.startFlashLED();
 								
-			//防止程序退出
-			int count = 10;
-			while(count -- > 0) {				
+			//防止程序退出			
+			while(true) {				
 				MonitorProcess(modbusRtu);
 				Delay.msDelay(1000 * 6); //1分钟处理一次
 				
@@ -75,7 +74,7 @@ public class NB200Sample {
 					System.out.println("temp = " + temperature + " humdity = " + humdity);
 
 					//上报平台
-					reportSensor(temperature, humdity);
+					//reportSensor(temperature, humdity);
 					
 				} else {
 					System.out.println("Modbus Error: result = " + result);

@@ -91,6 +91,22 @@ public class TiSerialPort {
 	
 	/**
 	 * Read data from uart
+	 * @return data or null
+	 * @throws IOException
+	 */
+	public byte [] read() throws IOException {
+		int avail = this.uart.available();
+		if(avail <= 0)
+			return null;
+		
+		byte [] buffer =new byte[avail];
+		this.uart.read(buffer, 0, avail);
+		
+		return buffer;
+	}
+	
+	/**
+	 * Read data from uart
 	 * @param msec  read all data within the time interval if there are data 
 	 * @return
 	 * @throws IOException

@@ -6,6 +6,7 @@ import tijos.framework.appcenter.TiOTA;
 import tijos.framework.component.nbiot.coap.Network;
 import tijos.framework.component.serialport.TiSerialPort;
 import tijos.framework.devicecenter.TiGPIO;
+import tijos.framework.platform.peripheral.TiLight;
 import tijos.framework.util.Delay;
 import tijos.framework.util.json.JSONException;
 import tijos.framework.util.json.JSONObject;
@@ -85,11 +86,15 @@ public class NB200 {
 	 * @return
 	 */
 	public static void networkStartup() throws IOException {
+		TiLight.getInstance().turnOff(0);
+		
 		Network.getInstance().startUp();
 		if(Network.getInstance().isPSM())
 		{
 			Network.getInstance().disablePSM();
 		}
+		
+		TiLight.getInstance().turnOn(0);
 	}
 
 	/**

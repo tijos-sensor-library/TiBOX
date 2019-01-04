@@ -40,6 +40,20 @@ public class ModbusClient extends ModbusPdu implements Closeable {
 	 */	
 	private ModbusClientTransport transport;
 	
+	/**
+	 * Initialize with serial port and default time out (2000ms) and pause 5ms after write
+	 * @param serialPort serial port
+	 */
+	public ModbusClient(TiSerialPort serialPort) {		
+		this(serialPort, 2000, 0);
+	}
+	
+	/**
+	 * Initialize modbus client with serial port 
+	 * @param serialPort serila port
+	 * @param timeout read timeout 
+	 * @param pause pause after send data 
+	 */
 	public ModbusClient(TiSerialPort serialPort,  int timeout, int pause) {
 		RtuTransportUART rtu = new RtuTransportUART(serialPort, timeout, pause);
 		setTransport(rtu);
@@ -341,6 +355,16 @@ public class ModbusClient extends ModbusPdu implements Closeable {
 		else
 			throw new IllegalStateException();
 	}
+	
+	/**
+	 * Get register value with unsigned value
+	 * @param address
+	 * @return value of register (0 - 65536)
+	 */
+	public int getResponseRegister(int address) {
+		return getResponseRegister(address, true);
+	}
+	
 
 	@Override
 	public void close() {
