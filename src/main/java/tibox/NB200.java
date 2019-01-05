@@ -75,6 +75,7 @@ public class NB200 {
 		if (rs485 == null) {
 			// 485端口 - UART 1, GPIO PORT 2 PIN 3
 			rs485 = new TiSerialPort(3, 2, 3);
+			rs485.open(baudRate, dataBitNum, stopBitNum, parity);
 		}
 
 		return rs485;
@@ -114,6 +115,15 @@ public class NB200 {
 	 */
 	public static int networkGetRSSI() throws IOException {
 		return Network.getInstance().getRSSI();
+	}
+	
+	/**
+	 * Get SIM Card iccid
+	 * @return iccid
+	 * @throws IOException
+	 */
+	public static String networkGetICCID() throws IOException{
+		return Network.getInstance().getICCID();
 	}
 
 	/**

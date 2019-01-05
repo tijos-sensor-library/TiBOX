@@ -17,6 +17,7 @@ public class NB200Sample {
 			
 			NB200.networkCoAPConnect("coap://coap.tijcloud.com:5683");
 			
+			System.out.println(" ICCID " + NB200.networkGetICCID());
 			//通讯参数
 			TiSerialPort rs485 = NB200.getRS485(9600, 8, 1, TiUART.PARITY_NONE);
 
