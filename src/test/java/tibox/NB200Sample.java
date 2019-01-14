@@ -31,7 +31,7 @@ public class NB200Sample {
 			//防止程序退出			
 			while(true) {				
 				MonitorProcess(modbusRtu);
-				Delay.msDelay(1000 * 6); //1分钟处理一次
+				Delay.msDelay(1000 * 60); //1分钟处理一次
 				
 				System.out.println("running..." + System.currentTimeMillis());
 			}

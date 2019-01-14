@@ -2,7 +2,6 @@ package tijos.framework.component.serialport;
 
 import java.io.IOException;
 
-import tijos.framework.devicecenter.TiGPIO;
 import tijos.framework.devicecenter.TiUART;
 import tijos.framework.util.Delay;
 import tijos.framework.util.Formatter;
@@ -16,9 +15,9 @@ import tijos.framework.util.logging.Logger;
 public class TiSerialPort {
 
 	private TiUART uart;
-	private TiGPIO gpio;
-	private int gpioPin;
 
+	private boolean rs485mode = false;
+	
 	/**
 	 * Initialize TiSerialPort with UART and GPIO
 	 * @param uartPort  UART port id
@@ -26,18 +25,12 @@ public class TiSerialPort {
 	 * @param gpioPin   GPIO pin id 
 	 * @throws IOException
 	 */
-	public TiSerialPort(int uartPort, int gpioPort, int gpioPin) throws IOException {
+	public TiSerialPort(int uartPort, boolean rs485) throws IOException {
 
 		// RS485使用UART1 根据外设进行初始化
 		uart = TiUART.open(uartPort);
 
-		if(gpioPort >= 0) {
-			// RS485 使用GPIO Port3 Pin4 进行半双工切换
-			gpio = TiGPIO.open(gpioPort, gpioPin);
-			gpio.setWorkMode(gpioPin, TiGPIO.OUTPUT_PP);
-
-			this.gpioPin = gpioPin;
-		}
+		rs485mode = rs485;
 	}
 
 	/**
@@ -80,13 +73,13 @@ public class TiSerialPort {
 	 */
 	public void write(byte [] buffer ,int start ,int length) throws IOException {
 		
-		if(gpio != null)
-		{
-			Logger.info("TiRS485", "sendReqeust GPIO high");
-			this.gpio.writePin(this.gpioPin, 1);
-		}
-		
 		this.uart.write(buffer, start, length);
+		
+		//dual mode with 2 rs485 chips, so we need to read the sent data firstly 
+		if(this.rs485mode) {
+			Delay.msDelay(20);
+			this.uart.read(buffer, start, length);
+		}		
 	}
 	
 	/**
@@ -150,12 +143,6 @@ public class TiSerialPort {
 	 */
 	public boolean readToBuffer(byte[] buffer, int start, int length, int timeOut) throws IOException {
 
-		if(gpio != null)
-		{
-			Logger.info("TiRS485", "readResponse GPIO low");
-			this.gpio.writePin(this.gpioPin, 0);
-		}
-		
 		long now = System.currentTimeMillis();
 		long deadline = now + timeOut;
 		int offset = start;

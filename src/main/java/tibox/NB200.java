@@ -49,7 +49,7 @@ public class NB200 {
 	public static boolean startFlash = false;
 
 	/**
-	 * Get RS232 of the NB100 Device
+	 * Get RS232 of the Device
 	 * 
 	 * @return
 	 * @throws IOException
@@ -57,7 +57,7 @@ public class NB200 {
 	public static TiSerialPort getRS232(int baudRate, int dataBitNum, int stopBitNum, int parity) throws IOException {
 		if (rs232 == null) {
 			// 232端口 - UART 1
-			rs232 = new TiSerialPort(2, -1, -1); // only UART without GPIO
+			rs232 = new TiSerialPort(2, false); // only UART without GPIO
 			rs232.open(baudRate, dataBitNum, stopBitNum, parity);
 		}
 
@@ -65,7 +65,7 @@ public class NB200 {
 	}
 
 	/**
-	 * Get RS485 port of the NB100 device
+	 * Get RS485 port of the device
 	 * 
 	 * @return
 	 * @throws IOException
@@ -74,7 +74,7 @@ public class NB200 {
 
 		if (rs485 == null) {
 			// 485端口 - UART 1, GPIO PORT 2 PIN 3
-			rs485 = new TiSerialPort(3, 2, 3);
+			rs485 = new TiSerialPort(3, true);
 			rs485.open(baudRate, dataBitNum, stopBitNum, parity);
 		}
 
@@ -135,6 +135,13 @@ public class NB200 {
 	 */
 	public static void networkCoAPConnect(String url) throws IOException {
 		Network.getInstance().connect(url);
+	}
+	
+	/**
+	 * Disconnect from CoAP server 
+	 */
+	public static void networkCoAPDisconnect() throws IOException {
+		Network.getInstance().disconnect();
 	}
 
 	/**
