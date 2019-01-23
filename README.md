@@ -1,17 +1,17 @@
-# TiBOX-NB100  NB-IoT可编程数传控制器开发指南
+# TiBOX-NB200  NB-IoT可编程数传控制器开发指南
 
 
 | 条目       | 说明                                       |
 | ---------- | ------------------------------------------ |
-| 驱动名称   | TiBOX-NB100 NB-IoT可编程数传控制器         |
-| 适用       | 适用于钛云物联TiBOX-NB100 可编程数传控制器 |
+| 驱动名称   | TiBOX-NB200 NB-IoT可编程数传控制器         |
+| 适用       | 适用于钛云物联TiBOX-NB200 可编程数传控制器 |
 | 通讯方式   | RS485/RS232                                |
-| Java Class | NB100.java                                 |
-| 图片       | ![NB100](./img/tibox-nb100.png)            |
+| Java Class | NB200.java                                 |
+| 图片       | ![NB200](./img/tibox-nb200.png)            |
 
 
 
-## TiBOX-NB100  钛极NB-IoT 可编程数传控制器
+## TiBOX-NB200  钛极NB-IoT 可编程数传控制器
 
 ### 产品介绍 
 
@@ -47,94 +47,93 @@ TiBOX支持OTA功能， 应用策略可通过云端动态加载运行，对未�
 降低对网络的依赖性，容灾性更强
 端侧控制策略更灵活，无需云端中转即可实现联动
 
-## TiBOX-NB100  编程开发说明
+## TiBOX-NB200  编程开发说明
 
-TiBOX-NB100 内置钛极OS(TiJOS) 操作系统， 支持通过JAVA语言进行应用开发，可通过钛极OS(TiJOS) 开发工具链IDE进行应用开发， 具体请参考doc.tijos.net
+TiBOX-NB200 内置钛极OS(TiJOS) 操作系统， 支持通过JAVA语言进行应用开发，可通过钛极OS(TiJOS) 开发工具链IDE进行应用开发， 具体请参考doc.tijos.net
 
-### TiBOX-NB100 Java类使用 说明
+### TiBOX-NB200 Java类使用 说明
 
-tibox.NB100类提供了TiBOX-N100所支持的硬件资源访问， 包括RS485, RS232, NBIOT, GPIO等等， 用户可通过在TiStudio中进行简单的开发即可支持各种应用， 同时基于钛极OS(TiJOS)支持的MODBUS协议类， 可以很方便地与支持MODBUS RTU协议的设备进行数据交互。 
+tibox.NB200类提供了TiBOX-N100所支持的硬件资源访问， 包括RS485, RS232, NBIOT, GPIO等等， 用户可通过在TiStudio中进行简单的开发即可支持各种应用， 同时基于钛极OS(TiJOS)支持的MODBUS协议类， 可以很方便地与支持MODBUS RTU协议的设备进行数据交互。 
 
-#### NB100 主要方法说明
+#### NB200 主要方法说明
 
 | 方法                                                         | 说明                                                         |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| **NB-IoT相关操作**                                           |                                                              |
+| void networkStartup()                                        |                                                              |
+| String networkGetIMEI()                                      |                                                              |
+| int networkGetRSSI()                                         |                                                              |
+| **串口相关操作**                                             |                                                              |
 | TiSerialPort getRS485(int baudRate, int dataBitNum, int stopBitNum, int parity) | 获取RS485接口， 参数：波特率，数据位，停止位，校验位         |
-| TiSerialPort getRS232(int baudRate, int dataBitNum, int stopBitNum, int parity) | 获取RS232接口， 参数：波特率，数据位，停止位，校验位                         |
-| void networkConnet(String serverIp, int port)                | 连接NB-IOT云平台， 建议使用电信云。serverIp/port: 电信云平台IP 及端口 |
-| void networkCoAPSend(byte[] dataBuffer)                      | 发送数据到云平台, dataBuffer 待发送数据                      |
-| void turnOnLED(int id)                                       | 打开指定LED灯                                                |
-| void turnOffLED(int id)                                      | 关闭指定LED灯                                                |
-| void startFlashLED()                                         | 闪烁指定LED灯                                                |
-| void stopFlashLED()                                          | 停止指定LED灯                                                |
-| void setNBEventListener                                      | 设置NB-IOT平台数据监听对象                                   |
+| TiSerialPort getRS232(int baudRate, int dataBitNum, int stopBitNum, int parity) | 获取RS232接口，参数：波特率，数据位，停止位，校验位          |
+| **CoAP网络操作**                                             |                                                              |
+| static void networkCoAPConnect(String url)                   | 通过CoAP协议连接云平台, url格式 coap://host:port   例如 coap://coap.tijcloud.com:5683 |
+| static void networkCoAPPOST(String uri, String jsonText)     | POST发送数据到云平台,uri 为CoAP资源路径， jsonText为 待发送数据 |
+| static String networkCoAPGET(String uri)                     | GET从云端获取数据, uri为CoAP资源路径, 返回云端数据           |
+| **应用OTA空中升级**                                          |                                                              |
+| String networkGetOTARequest(String OTAUri)                   | 从云端获取OTA升级参数， OTAUri为云端OTA请求资源路径，通过JSON格式返回OTA升级参数 |
+| static void networkOTA(String productKey, String otaAppName, String otaRequest) | 执行空中升级OTA， productKey: 产品标识， otaAppName： 本机OTA应用名称  otaRequest 通过networkGetOTARequest返回的OTA请求信息， 升级成功后将自动运行新版本应用 |
+| **UDP网络操作**                                              |                                                              |
+| 基于标准JAVA DatagramSocket 对象即可                         |                                                              |
+|                                                              |                                                              |
+| **LED灯控制**                                                |                                                              |
+| void turnOnLED()                                             | 打开LED灯                                                    |
+| void turnOffLED()                                            | 关闭LED灯                                                    |
+| void startFlashLED()                                         | 闪烁LED灯                                                    |
+| void stopFlashLED()                                          | 停止闪烁LED灯                                                |
+|                                                              |                                                              |
 
-#### IDeviceEventListener 数据监听
+#### TiSerialPort  串口类主要方法使用说明
 
-| 方法                                    | 说明                                                         |
-| --------------------------------------- | ------------------------------------------------------------ |
-| void onCoapDataArrived(byte []message); | 当收到NBIOT云平台COAP协议数据时该接口被调用， meessage为云平台下发数据 |
-| void onUDPDataArrived(byte [] packet);  | 当收到NBIOT去平台UDP数据时该接口被调用， 一般不使用该接口    |
+通过getRS485/getRS232获取串口后，即可对串口进行读写操作
 
-
-
-### 一般调用过程 - MODBUS RTU为例
-
-**场景**：
-
-设备通过RS485连接到TiBOX-NB100， 通讯MODBUS RTU协议进行数据交互
-
-**设备通讯参数**
-
-| 参数    | 值   |
-| ------- | ---- |
-| 设备 ID | 1    |
-| 波特率  | 9600 |
-| 数据位  | 8    |
-| 停止位  | 1    |
-| 停止位  | 无   |
-
-**寄存器**： INPUT REGISTER  (03)  
-
-| 寄存器地址 | 内容     | 操作权限 | 数值范围                                       |
-| ---------- | -------- | -------- | ---------------------------------------------- |
-| 0x0000     | 空气湿度 | 只读     | 0x00(0)--0x03E7(999) 对应 0%--99.9% 数值放大了 |
-| 0x0001     | 空气温度 | 只读     | 0x8190(-400)--0x0320(800) 对应 -40℃--80℃ 负数  |
-
+| 方法                                                         | 说明                                                         |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| void write(byte [] buffer ,int start ,int length)            | 写入数据到串口 buffer: 待写入数据  start  缓存区开始位置 length 写入长度 |
+| boolean readToBuffer(byte[] buffer, int start, int length, int timeOut) | 从串口读取指定长度数据  buffer: 读入数据缓存区，start 缓存区开始位置 ，length 读取长度 ， timeOut超时，单位毫秒 |
+| byte [] read(int msec)                                       | 从串口读数据, msec 最大毫秒数， 当有数据时从串口指定时间的数据返回， 如果没有数据则返回null |
+|                                                              |                                                              |
 
 
 #### 代码调用过程
 
-1. 打开RS485并获取TiSerialPort对象
+下面以钛极云平台为例，通过MODBUS获取温湿度状态并通过COAP协议上报至云平台， 用户也可搭建自己的COAP服务器进行测试。
 
-	```java
-   //通讯参数
-   TiSerialPort rs485 = NB100.getRS485(9600, 8, 1, TiUART.PARITY_NONE);
+1. 启动NB-IoT网络
+
+  ```java
+  //NB-IoT注网
+  NB200.networkStartup();
   ```
 
-2. 创建MODBUS协议对象并挂接RS485
+  
+
+2. 打开RS485并获取TiSerialPort对象
+
+  ```java
+   //通讯参数
+   TiSerialPort rs485 = NB200.getRS485(9600, 8, 1, TiUART.PARITY_NONE);
+  ```
+
+3. 创建MODBUS协议对象并挂接RS485
 
    ```java
    //MODBUS 客户端  
-   //通讯超时2000 ms 读取数据前等待5ms
-   ModbusClient modbusRtu = new ModbusClient(rs485, 2000, 5);
+   //通讯超时2000 ms 
+   ModbusClient modbusRtu = new ModbusClient(rs485);
    ```
 
-3. 连接NB-IOT网络
+4. 连接NB-IOT网络
 
-```java
-   //电信物联网平台分配的IP, 请换成实际的服务器IP
-   String serverIp = "180.101.147.115";
-   int port = 5683;
-   
-   //NBIOT Network Connect
-   NB100.networkConnet(serverIp, port);
+    ```java
+       //COAP服务器URL及端口
+       String serverUrl = "coap://coap.tijos.net:5683";
+       //连接服务器
+       NB200.networkCoAPConnect(serverUrl);
+    
+    ```
 
-   //设置NBIOT 电信云平台数据接收事件监听
-   NB100.setNBEventListener(new NBIOTEventListener());
-```
-
-4. 通过MODBUS协议读取寄存器数据 
+5. 通过MODBUS协议读取寄存器数据 
 
    ```java
       // MODBUS Server 设备地址
@@ -159,48 +158,37 @@ tibox.NB100类提供了TiBOX-N100所支持的硬件资源访问， 包括RS485, 
       
    ```
 
-5. 将数据上报至云平台
+6. 将数据上报至云平台
 
-6. ```java
-   //在电信云平台中需进行相应的PROFILE和插件配置，具体请参考电信云平台相关文档
-   byte[] dataBuffer = new byte[5];
+7. ```java
+   //与设备相关URI
+   String productKey = "TiBox-NB200";
+   String dataUri = "/topic/" + product + "/" + NB200.networkGetIMEI() + "/data";
    
-   dataBuffer[0] = 0; // message id
-   dataBuffer[1] = (byte) (humidity >> 8);
-   dataBuffer[2] = (byte) (humidity & 0xFF);
-   dataBuffer[3] = (byte) (temperature >> 8);
-   dataBuffer[4] = (byte) (temperature & 0xFF);
+   //数据格式使用JSON格式
+   String dataBuffer = "{temperature:" + temperature / 10 + ",humidity:" + humidity / 10 +",rssi:"+ NB200.networkGetRSSI()+ "}";
    
-   try {
-       NB100.networkCoAPSend(dataBuffer);
-   } catch (IOException e) {
-       e.printStackTrace();
-   }
+   //发送数据到指定的资源路径
+   NB200.networkCoAPPOST(dataUri,  dataBuffer);
+   
    ```
 
-   当收到云平台数据时，在事件监听中进行相应命令解析和执行
+   获取云平台命令，一般在上报数据到云平台后即可通过GET操作获取云端命令
 
    ```java
-   
-   /**
-    * NB-IOT 收到数据事件回调，电信云平台 通过onCoapDataArrived事件来进行发送数据到设备, onUDPDataArrived 可忽略
-    */
-   class NBIOTEventListener implements IDeviceEventListener
+   //获取云端命令
+   String cmdUri = "/topic/" + product + "/" + NB200.networkGetIMEI() + "/cmd";
+   String cmd = NB200.networkCoAPGET(cmdUri);
+   if(cmd.length() > 0)
    {
-   	@Override
-   	public void onCoapDataArrived(byte []message) {
-   		System.out.println("onCoapDataArrived");
-   	}
-   	
-   	@Override
-   	public void onUDPDataArrived(byte [] packet) {
-   		System.out.println("onUDPDataArrived");
-   	}
+       //有命令来自云端, 需进行处理
    }
    
    ```
 
    ### 
+
+
 
 
 
@@ -245,12 +233,12 @@ tibox.NB100类提供了TiBOX-N100所支持的硬件资源访问， 包括RS485, 
 
 ### 第一步 ：RS485 初始化
 
-获取TiBox-NB100的RS485对象
+获取TiBox-NB200的RS485对象
 
 ```java
 		// 485端口
 		// 通讯参数 9600，8，1，N
-		TiSerialPort rs485 = NB100.getRS485(9600, 8, 1, TiUART.PARITY_NONE);
+		TiSerialPort rs485 = NB200.getRS485(9600, 8, 1, TiUART.PARITY_NONE);
 
 ```
 
