@@ -36,6 +36,14 @@ public class RtuTransportUART  implements ModbusClientTransport {
 		this.pause = pause;
 	}
 
+	/**
+	 * Open UART with parameters 
+	 * @param baudRate 
+	 * @param dataBitNum
+	 * @param stopBitNum
+	 * @param parity
+	 * @throws IOException
+	 */
 	public void open(int baudRate, int dataBitNum, int stopBitNum, int parity) throws IOException {
 		this.serialPort.open(baudRate, dataBitNum, stopBitNum, parity);
 	}

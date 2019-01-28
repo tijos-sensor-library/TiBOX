@@ -34,7 +34,7 @@ public class ModbusClient extends ModbusPdu implements Closeable {
 	private int expectedAddress = -1;
 	private int expectedCount = -1;
 	private int result; // RESULT_*
-
+	
 	/**
 	 * Transport 
 	 */	
@@ -297,7 +297,7 @@ public class ModbusClient extends ModbusPdu implements Closeable {
 	}
 
 	/**
-	 * 
+	 * get response start address 
 	 * @return
 	 */
 	public int getResponseAddress() {
@@ -307,6 +307,10 @@ public class ModbusClient extends ModbusPdu implements Closeable {
 			throw new IllegalStateException();
 	}
 
+	/**
+	 * get reponse register count 
+	 * @return
+	 */
 	public int getResponseCount() {
 		if (responseReady && (expectedCount >= 0)) 
 			return (expectedCount);
@@ -356,6 +360,40 @@ public class ModbusClient extends ModbusPdu implements Closeable {
 			throw new IllegalStateException();
 	}
 	
+	/**
+	 * Get register value from response and convert to a float value (4bytes) 
+	 * @param address 
+	 * @param bigEndian  big or little endian
+	 * @return float value from the response
+	 */
+	public float getResponseRegisterFloat(int address, boolean bigEndian) {
+		if ((getFunction() == FN_READ_HOLDING_REGISTERS) || (getFunction() == FN_READ_INPUT_REGISTERS)) {
+			int offset = address - getResponseAddress();
+			if ((offset < 0) || (offset >= getResponseCount()))
+				throw new IndexOutOfBoundsException();
+			return readFloatFromPDU(2 + offset * 2, bigEndian);
+		}
+		else
+			throw new IllegalStateException();		
+	}
+	
+	/**
+	 * Get register value from response and convert to a int32 value (4 bytes)
+	 * @param address
+	 * @param bigEndian
+	 * @return
+	 */
+	public int getResponseRegisterInt32(int address, boolean bigEndian) {
+		if ((getFunction() == FN_READ_HOLDING_REGISTERS) || (getFunction() == FN_READ_INPUT_REGISTERS)) {
+			int offset = address - getResponseAddress();
+			if ((offset < 0) || (offset >= getResponseCount()))
+				throw new IndexOutOfBoundsException();
+			return readInt32FromPDU(2 + offset * 2, bigEndian);
+		}
+		else
+			throw new IllegalStateException();				
+	}
+		
 	/**
 	 * Get register value with unsigned value
 	 * @param address
