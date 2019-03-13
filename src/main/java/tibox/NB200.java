@@ -57,7 +57,7 @@ public class NB200 {
     public static TiSerialPort getRS232(int baudRate, int dataBitNum, int stopBitNum, int parity) throws IOException {
         if (rs232 == null) {
             // 232端口 - UART 1
-            rs232 = new TiSerialPort(2, false); // only UART without GPIO
+            rs232 = new TiSerialPort(2); // only UART without GPIO
             rs232.open(baudRate, dataBitNum, stopBitNum, parity);
         }
 
@@ -74,13 +74,33 @@ public class NB200 {
 
         if (rs485 == null) {
             // 485端口 - UART 1, GPIO PORT 2 PIN 3
-            rs485 = new TiSerialPort(3, true);
+            rs485 = new TiSerialPort(3);
             rs485.open(baudRate, dataBitNum, stopBitNum, parity);
         }
 
         return rs485;
     }
 
+    /**
+     * Get UART with the port id
+     * @param port UART port id
+     * @param baudRate
+     * @param dataBitNum
+     * @param stopBitNum
+     * @param parity
+     * @return
+     * @throws IOException
+     */
+    public static TiSerialPort getUart(int port, int baudRate, int dataBitNum, int stopBitNum, int parity) throws IOException {
+    	  if (rs232 == null) {
+              // 232端口 - UART 1
+              rs232 = new TiSerialPort(2); // only UART without GPIO
+              rs232.open(baudRate, dataBitNum, stopBitNum, parity);
+          }
+
+          return rs232;
+    }
+    
     /**
      * Startup NBIoT Network
      *

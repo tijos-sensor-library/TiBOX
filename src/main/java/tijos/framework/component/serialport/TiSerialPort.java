@@ -16,8 +16,6 @@ public class TiSerialPort {
 
     private TiUART uart;
 
-    private boolean rs485mode = false;
-
     /**
      * Initialize TiSerialPort with UART and GPIO
      *
@@ -26,12 +24,10 @@ public class TiSerialPort {
      * @param gpioPin  GPIO pin id
      * @throws IOException
      */
-    public TiSerialPort(int uartPort, boolean rs485) throws IOException {
+    public TiSerialPort(int uartPort) throws IOException {
 
         // RS485使用UART1 根据外设进行初始化
         uart = TiUART.open(uartPort);
-
-        rs485mode = rs485;
     }
 
     /**
@@ -77,14 +73,7 @@ public class TiSerialPort {
      * @throws IOException
      */
     public void write(byte[] buffer, int start, int length) throws IOException {
-
         this.uart.write(buffer, start, length);
-
-        //dual mode with 2 rs485 chips, so we need to read the sent data firstly
-        if (this.rs485mode) {
-            Delay.msDelay(20);
-            this.uart.read(buffer, start, length);
-        }
     }
 
     /**
